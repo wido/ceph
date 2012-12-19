@@ -1956,14 +1956,16 @@ void Locker::handle_inode_file_caps(MInodeFileCaps *m)
 class C_MDL_CheckMaxSize : public Context {
   Locker *locker;
   CInode *in;
+  bool update_size;
+  uint64_t size;
 public:
-  C_MDL_CheckMaxSize(Locker *l, CInode *i) : locker(l), in(i) {
+  C_MDL_CheckMaxSize(Locker *l, CInode *i, bool u=false, uint64_t s=0) : locker(l), in(i), update_size(u), size(s) {
     in->get(CInode::PIN_PTRWAITER);
   }
   void finish(int r) {
     in->put(CInode::PIN_PTRWAITER);
     if (in->is_auth())
-      locker->check_inode_max_size(in);
+      locker->check_inode_max_size(in, false, update_size, size);
   }
 };
 
@@ -2022,7 +2024,7 @@ bool Locker::check_inode_max_size(CInode *in, bool force_wrlock,
 
   if (in->is_frozen()) {
     dout(10) << "check_inode_max_size frozen, waiting on " << *in << dendl;
-    in->add_waiter(CInode::WAIT_UNFREEZE, new C_MDL_CheckMaxSize(this, in));
+    in->add_waiter(CInode::WAIT_UNFREEZE, new C_MDL_CheckMaxSize(this, in, update_size, new_max));
     return false;
   }
   if (!force_wrlock && !in->filelock.can_wrlock(in->get_loner())) {
@@ -2035,7 +2037,7 @@ bool Locker::check_inode_max_size(CInode *in, bool force_wrlock,
     }
     if (!in->filelock.can_wrlock(in->get_loner())) {
       // try again later
-      in->filelock.add_waiter(SimpleLock::WAIT_STABLE, new C_MDL_CheckMaxSize(this, in));
+      in->filelock.add_waiter(SimpleLock::WAIT_STABLE, new C_MDL_CheckMaxSize(this, in, update_size, new_size));
       dout(10) << "check_inode_max_size can't wrlock, waiting on " << *in << dendl;
       return false;    
     }
@@ -2755,7 +2757,7 @@ bool Locker::_do_cap_update(CInode *in, Capability *cap,
       }
       if (!in->filelock.can_wrlock(client) &&
 	  !in->filelock.can_force_wrlock(client)) {
-	in->filelock.add_waiter(SimpleLock::WAIT_STABLE, new C_MDL_CheckMaxSize(this, in));
+	in->filelock.add_waiter(SimpleLock::WAIT_STABLE, new C_MDL_CheckMaxSize(this, in, change_max, new_max));
 	change_max = false;
       }
     }
