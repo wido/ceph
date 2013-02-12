@@ -39,11 +39,6 @@ duration=300
 [ ! -z $DURATION ] && duration=$DURATION
 
 extra=
-if [[ ! -z $TEST_CEPH_CONF ]]; then
-  extra="$extra -c $TEST_CEPH_CONF"
-elif [[ ! -z $CEPH_CONF ]]; then
-  extra="$extra -c $CEPH_CONF"
-fi
 
 d "checking osd tree"
 
