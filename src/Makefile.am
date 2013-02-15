@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = gnu
-SUBDIRS = ocf java
-DIST_SUBDIRS = gtest ocf libs3 java
+SUBDIRS = ocf java liblua
+DIST_SUBDIRS = gtest ocf libs3 java liblua
 
 EXTRA_DIST = \
 	libs3/COPYING \
