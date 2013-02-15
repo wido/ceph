@@ -301,6 +301,18 @@ static int clslua_read(lua_State *L)
 }
 
 /*
+ * cls_cxx_write
+ */
+static int clslua_write(lua_State *L){
+  cls_method_context_t hctx = clslua_get_hctx(L);
+  int offset = luaL_checkint(L, 1);
+  int length = luaL_checkint(L, 2);
+  bufferlist *bl = clslua_checkbufferlist(L, 3);
+  int ret = cls_cxx_write(hctx, offset, length, bl);
+  return clslua_opresult(L, (ret == 0), ret, 0);
+}
+
+/*
  * cls_cxx_map_get_val
  */
 static int clslua_map_get_val(lua_State *L)
@@ -334,6 +346,7 @@ static const luaL_Reg clslua_lib[] = {
   {"remove", clslua_remove},
   {"stat", clslua_stat},
   {"read", clslua_read},
+  {"write", clslua_write},
   {"map_get_val", clslua_map_get_val},
   {"map_set_val", clslua_map_set_val},
   {NULL, NULL}

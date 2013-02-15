@@ -123,6 +123,25 @@ librados::IoCtx ClsLua::ioctx;
 string ClsLua::pool_name;
 string ClsLua::test_script;
 
+TEST_F(ClsLua, Write) {
+  /* write some data into object */
+  string written = "Hello World";
+  bufferlist inbl;
+  ::encode(written, inbl);
+  ASSERT_EQ(0, clslua_exec(test_script, &inbl, "write"));
+
+  /* have Lua read out of the object */
+  uint64_t size;
+  bufferlist outbl;
+  ASSERT_EQ(0, ioctx.stat(oid, &size, NULL));
+  ASSERT_EQ(size, (uint64_t)ioctx.read(oid, outbl, size, 0) );
+
+  /* compare what Lua read to what we wrote */
+  string read;
+  ::decode(read, outbl);
+  ASSERT_EQ(read, written);
+}
+
 TEST_F(ClsLua, SyntaxError) {
   ASSERT_EQ(-EIO, clslua_exec("-"));
 }

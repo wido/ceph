@@ -16,6 +16,15 @@ end
 cls.register(read)
 
 --
+-- Write
+--
+function write(input, output)
+  cls.write(0, input:length(), input)
+end
+
+cls.register(write)
+
+--
 -- MsgPack
 --
 function msgpack(input, output)

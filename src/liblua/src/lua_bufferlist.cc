@@ -78,6 +78,16 @@ static int bl_append(lua_State *L)
 }
 
 /*
+ * Return the length in bytes of bufferlist
+ */
+static int bl_length(lua_State *L)
+{
+  bufferlist *bl = clslua_checkbufferlist(L);
+  lua_pushinteger(L, bl->length());
+  return 1;
+}
+
+/*
  * Perform byte-for-byte bufferlist equality test
  */
 static int bl_eq(lua_State *L)
@@ -104,6 +114,7 @@ static int bl_gc(lua_State *L)
 static const struct luaL_Reg bufferlist_methods[] = {
   {"str", bl_str},
   {"append", bl_append},
+  {"length", bl_length},
   {"__gc", bl_gc},
   {"__eq", bl_eq},
   {NULL, NULL}
