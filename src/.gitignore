@@ -67,3 +67,6 @@ Makefile
 
 # old dir, may in use by older branches
 /leveldb
+
+/test/cls_lua/test_script.h
+/txt2str

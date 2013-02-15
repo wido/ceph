@@ -24,6 +24,7 @@ EXTRA_DIST = \
 
 CLEANFILES =
 bin_PROGRAMS =
+noinst_PROGRAMS =
 # like bin_PROGRAMS, but these targets are only built for debug builds
 bin_DEBUGPROGRAMS =
 sbin_PROGRAMS =
@@ -528,6 +529,12 @@ libcls_rgw_la_LDFLAGS = ${AM_LDFLAGS} -version-info 1:0:0 -export-symbols-regex 
 radoslib_LTLIBRARIES += libcls_rgw.la
 endif
 
+libcls_lua_la_SOURCES = cls/lua/cls_lua.cc cls/lua/cls_lua.h
+libcls_lua_la_CXXFLAGS = ${AM_CXXFLAGS}
+libcls_lua_la_LIBADD = liblua/liblua.la
+libcls_lua_la_LDFLAGS = ${AM_LDFLAGS} -version-info 1:0:0 -export-symbols-regex '.*__cls_.*'
+radoslib_LTLIBRARIES += libcls_lua.la
+
 libcls_lock_client_a_SOURCES =  \
 	cls/lock/cls_lock_client.cc  \
 	cls/lock/cls_lock_types.cc \
@@ -869,6 +876,28 @@ ceph_test_cls_rbd_SOURCES = test/cls_rbd/test_cls_rbd.cc \
 ceph_test_cls_rbd_LDADD = librados.la ${UNITTEST_STATIC_LDADD}
 ceph_test_cls_rbd_CXXFLAGS = ${AM_CXXFLAGS} ${UNITTEST_CXXFLAGS}
 bin_DEBUGPROGRAMS += ceph_test_cls_rbd
+
+
+LUA_TEST_H=test/cls_lua/test_script.h
+LUA_TEST_L=test/cls_lua/test_script.lua
+
+EXTRA_DIST += $(LUA_TEST_L)
+BUILT_SOURCES += $(LUA_TEST_H)
+CLEANFILES += $(LUA_TEST_H)
+
+txt2str_SOURCES = test/cls_lua/txt2str.cc
+noinst_PROGRAMS += txt2str
+
+$(LUA_TEST_H): $(LUA_TEST_L) txt2str
+	$(top_builddir)/src/txt2str $(LUA_TEST_L) cls_lua_test_script > $@
+
+ceph_test_cls_lua_SOURCES = \
+	test/cls_lua/test_cls_lua.cc \
+	test/librados/test.cc \
+	$(LUA_TEST_H)
+ceph_test_cls_lua_LDADD = librados.la liblua/liblua.la ${UNITTEST_STATIC_LDADD}
+ceph_test_cls_lua_CXXFLAGS = ${AM_CXXFLAGS} ${UNITTEST_CXXFLAGS}
+bin_DEBUGPROGRAMS += ceph_test_cls_lua
 
 ceph_test_cls_refcount_SOURCES = test/cls_refcount/test_cls_refcount.cc \
 	test/librados/test.cc
