@@ -19,7 +19,7 @@ cls.register(read)
 -- Write
 --
 function write(input, output)
-  cls.write(0, input:length(), input)
+  cls.write(0, #input, input)
 end
 
 cls.register(write)
