@@ -208,6 +208,28 @@ cls.register(bl_eq_equal)
 cls.register(bl_eq_notequal)
 
 --
+-- Bufferlist Compare
+--
+function bl_lt()
+  local a = bufferlist.new()
+  local b = bufferlist.new()
+  a:append('A')
+  b:append('B')
+  assert(a < b)
+end
+
+function bl_le()
+  local a = bufferlist.new()
+  local b = bufferlist.new()
+  a:append('A')
+  b:append('B')
+  assert(a <= b)
+end
+
+cls.register(bl_lt)
+cls.register(bl_le)
+
+--
 -- RunError
 --
 function runerr_a()

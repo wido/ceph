@@ -99,6 +99,28 @@ static int bl_eq(lua_State *L)
 }
 
 /*
+ * Bufferlist < operator
+ */
+static int bl_lt(lua_State *L)
+{
+  bufferlist *bl1 = clslua_checkbufferlist(L, 1);
+  bufferlist *bl2 = clslua_checkbufferlist(L, 2);
+  lua_pushboolean(L, *bl1 < *bl2 ? 1 : 0);
+  return 1;
+}
+
+/*
+ * Bufferlist <= operator
+ */
+static int bl_le(lua_State *L)
+{
+  bufferlist *bl1 = clslua_checkbufferlist(L, 1);
+  bufferlist *bl2 = clslua_checkbufferlist(L, 2);
+  lua_pushboolean(L, *bl1 <= *bl2 ? 1 : 0);
+  return 1;
+}
+
+/*
  * Garbage collect bufferlist
  */
 static int bl_gc(lua_State *L)
@@ -115,6 +137,8 @@ static const struct luaL_Reg bufferlist_methods[] = {
   {"str", bl_str},
   {"append", bl_append},
   {"__len", bl_len},
+  {"__lt", bl_lt},
+  {"__le", bl_le},
   {"__gc", bl_gc},
   {"__eq", bl_eq},
   {NULL, NULL}

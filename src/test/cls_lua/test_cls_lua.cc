@@ -378,3 +378,8 @@ TEST_F(ClsLua, ClsLog) {
   ASSERT_EQ(reply.log[0], "la tee da");
   ASSERT_EQ(reply.log[1], "coffee");
 }
+
+TEST_F(ClsLua, BufferlistCompare) {
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_lt"));
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_le"));
+}
