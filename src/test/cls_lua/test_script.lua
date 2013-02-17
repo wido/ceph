@@ -230,6 +230,49 @@ cls.register(bl_lt)
 cls.register(bl_le)
 
 --
+-- Bufferlist concat
+--
+function bl_concat_eq()
+  local a = bufferlist.new()
+  local b = bufferlist.new()
+  local ab = bufferlist.new()
+  a:append('A')
+  b:append('B')
+  ab:append('AB')
+  assert(a .. b == ab)
+end
+
+function bl_concat_ne()
+  local a = bufferlist.new()
+  local b = bufferlist.new()
+  local ab = bufferlist.new()
+  a:append('A')
+  b:append('B')
+  ab:append('AB')
+  assert(b .. a ~= ab)
+end
+
+function bl_concat_immut()
+  local a = bufferlist.new()
+  local b = bufferlist.new()
+  local ab = bufferlist.new()
+  a:append('A')
+  b:append('B')
+  ab:append('AB')
+  x = a .. b
+  assert(x == ab)
+  b:append('C')
+  assert(x == ab)
+  local bc = bufferlist.new()
+  bc:append('BC')
+  assert(b == bc)
+end
+
+cls.register(bl_concat_eq)
+cls.register(bl_concat_ne)
+cls.register(bl_concat_immut)
+
+--
 -- RunError
 --
 function runerr_a()

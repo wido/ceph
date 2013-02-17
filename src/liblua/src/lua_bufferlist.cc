@@ -121,6 +121,19 @@ static int bl_le(lua_State *L)
 }
 
 /*
+ * Bufferlist concatentation
+ */
+static int bl_concat(lua_State *L)
+{
+  bufferlist *bl1 = clslua_checkbufferlist(L, 1);
+  bufferlist *bl2 = clslua_checkbufferlist(L, 2);
+  bufferlist *ret = clslua_pushbufferlist(L, NULL);
+  ret->append(bl1->c_str(), bl1->length());
+  ret->append(bl2->c_str(), bl2->length());
+  return 1;
+}
+
+/*
  * Garbage collect bufferlist
  */
 static int bl_gc(lua_State *L)
@@ -136,6 +149,7 @@ static int bl_gc(lua_State *L)
 static const struct luaL_Reg bufferlist_methods[] = {
   {"str", bl_str},
   {"append", bl_append},
+  {"__concat", bl_concat},
   {"__len", bl_len},
   {"__lt", bl_lt},
   {"__le", bl_le},

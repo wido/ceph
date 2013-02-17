@@ -383,3 +383,9 @@ TEST_F(ClsLua, BufferlistCompare) {
   ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_lt"));
   ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_le"));
 }
+
+TEST_F(ClsLua, BufferlistConcat) {
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_concat_eq"));
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_concat_ne"));
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_concat_immut"));
+}
