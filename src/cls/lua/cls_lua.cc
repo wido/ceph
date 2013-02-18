@@ -303,7 +303,8 @@ static int clslua_read(lua_State *L)
 /*
  * cls_cxx_write
  */
-static int clslua_write(lua_State *L){
+static int clslua_write(lua_State *L)
+{
   cls_method_context_t hctx = clslua_get_hctx(L);
   int offset = luaL_checkint(L, 1);
   int length = luaL_checkint(L, 2);
