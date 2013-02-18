@@ -389,3 +389,20 @@ TEST_F(ClsLua, BufferlistConcat) {
   ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_concat_ne"));
   ASSERT_EQ(0, clslua_exec(test_script, NULL, "bl_concat_immut"));
 }
+
+TEST_F(ClsLua, GetXattr) {
+  bufferlist bl;
+  bl.append("blahblahblahblahblah");
+  ASSERT_EQ(0, ioctx.setxattr(oid, "fooz", bl));
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "getxattr"));
+  ASSERT_TRUE(reply.output == bl);
+}
+
+TEST_F(ClsLua, SetXattr) {
+  bufferlist inbl;
+  inbl.append("blahblahblahblahblah");
+  ASSERT_EQ(0, clslua_exec(test_script, &inbl, "setxattr"));
+  bufferlist outbl;
+  ASSERT_EQ((int)inbl.length(), ioctx.getxattr(oid, "fooz2", outbl));
+  ASSERT_TRUE(outbl == inbl);
+}

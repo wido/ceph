@@ -289,3 +289,22 @@ end
 
 -- only runerr_c is called
 cls.register(runerr_c)
+
+--
+-- GetXattr
+--
+function getxattr(input, output)
+  bl = cls.getxattr("fooz")
+  output:append(bl:str())
+end
+
+cls.register(getxattr)
+
+--
+-- SetXattr
+--
+function setxattr(input, output)
+  cls.setxattr("fooz2", input)
+end
+
+cls.register(setxattr)

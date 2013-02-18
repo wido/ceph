@@ -314,6 +314,30 @@ static int clslua_write(lua_State *L)
 }
 
 /*
+ * cls_cxx_getxattr
+ */
+static int clslua_getxattr(lua_State *L)
+{
+  cls_method_context_t hctx = clslua_get_hctx(L);
+  const char *name = luaL_checkstring(L, 1);
+  bufferlist  *bl = clslua_pushbufferlist(L, NULL);
+  int ret = cls_cxx_getxattr(hctx, name, bl);
+  return clslua_opresult(L, (ret >= 0), ret, 1);
+}
+
+/*
+ * cls_cxx_setxattr
+ */
+static int clslua_setxattr(lua_State *L)
+{
+  cls_method_context_t hctx = clslua_get_hctx(L);
+  const char *name = luaL_checkstring(L, 1);
+  bufferlist *bl = clslua_checkbufferlist(L, 2);
+  int ret = cls_cxx_setxattr(hctx, name, bl);
+  return clslua_opresult(L, (ret == 0), ret, 1);
+}
+
+/*
  * cls_cxx_map_get_val
  */
 static int clslua_map_get_val(lua_State *L)
@@ -350,6 +374,8 @@ static const luaL_Reg clslua_lib[] = {
   {"write", clslua_write},
   {"map_get_val", clslua_map_get_val},
   {"map_set_val", clslua_map_set_val},
+  {"getxattr", clslua_getxattr},
+  {"setxattr", clslua_setxattr},
   {NULL, NULL}
 };
 
