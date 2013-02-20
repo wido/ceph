@@ -1138,6 +1138,7 @@ EXTRA_DIST += \
 	$(srcdir)/verify-mds-journal.sh $(srcdir)/vstart.sh $(srcdir)/stop.sh \
 	ceph-run $(srcdir)/ceph_common.sh \
 	$(srcdir)/init-radosgw \
+	$(srcdir)/init-radosgw.sysv \
 	$(srcdir)/ceph-clsinfo $(srcdir)/make_version $(srcdir)/check_version \
 	$(srcdir)/.git_version \
 	$(srcdir)/ceph-rbdnamer \
