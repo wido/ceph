@@ -415,6 +415,11 @@ void EMetaBlob::fullbit::update_inode(MDS *mds, CInode *in)
     in->symlink = symlink;
   }
   in->old_inodes = old_inodes;
+  if (!in->old_inodes.empty()) {
+    map<snapid_t, old_inode_t>::iterator p = in->old_inodes.end();
+    --p; // get the actual last entry
+    in->first = p->first + 1;
+  }
 }
 
 void EMetaBlob::replay(MDS *mds, LogSegment *logseg, MDSlaveUpdate *slaveup)
