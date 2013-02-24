@@ -362,6 +362,16 @@ static int clslua_map_set_val(lua_State *L)
 }
 
 /*
+ * cls_cxx_map_clear
+ */
+static int clslua_map_clear(lua_State *L)
+{
+  cls_method_context_t hctx = clslua_get_hctx(L);
+  int ret = cls_cxx_map_clear(hctx);
+  return clslua_opresult(L, (ret == 0), ret, 0);
+}
+
+/*
  * Functions registered in the 'cls' module.
  */
 static const luaL_Reg clslua_lib[] = {
@@ -372,6 +382,7 @@ static const luaL_Reg clslua_lib[] = {
   {"stat", clslua_stat},
   {"read", clslua_read},
   {"write", clslua_write},
+  {"map_clear", clslua_map_clear},
   {"map_get_val", clslua_map_get_val},
   {"map_set_val", clslua_map_set_val},
   {"getxattr", clslua_getxattr},

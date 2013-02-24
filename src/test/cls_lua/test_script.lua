@@ -166,6 +166,15 @@ end
 cls.register(map_set_val)
 
 --
+-- MapClear
+--
+function map_clear()
+  cls.map_clear()
+end
+
+cls.register(map_clear)
+
+--
 -- BufferlistEquality
 --
 function bl_eq_empty_equal(input, output)

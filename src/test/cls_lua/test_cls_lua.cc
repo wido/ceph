@@ -247,6 +247,33 @@ TEST_F(ClsLua, Stat) {
   ASSERT_EQ(-ENOENT, __clslua_exec("dne", test_script, NULL, "stat_sdne_pcall"));
 }
 
+TEST_F(ClsLua, MapClear) {
+  /* write some data into a key */
+  string msg = "This is a test message";
+  bufferlist val;
+  val.append(msg.c_str(), msg.size());
+  map<string, bufferlist> map;
+  map["foo"] = val;
+  ASSERT_EQ(0, ioctx.omap_set(oid, map));
+
+  /* test we can get it back out */
+  set<string> keys;
+  keys.insert("foo");
+  map.clear();
+  ASSERT_EQ(0, (int)map.count("foo"));
+  ASSERT_EQ(0, ioctx.omap_get_vals_by_keys(oid, keys, &map));
+  ASSERT_EQ(1, (int)map.count("foo"));
+
+  /* now clear it */
+  ASSERT_EQ(0, clslua_exec(test_script, NULL, "map_clear"));
+
+  /* test that the map we get back is empty now */
+  map.clear();
+  ASSERT_EQ(0, (int)map.count("foo"));
+  ASSERT_EQ(0, ioctx.omap_get_vals_by_keys(oid, keys, &map));
+  ASSERT_EQ(0, (int)map.count("foo"));
+}
+
 TEST_F(ClsLua, MapSetVal) {
   /* build some input value */
   bufferlist orig_val;
