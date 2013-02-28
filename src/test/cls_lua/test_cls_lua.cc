@@ -1,12 +1,9 @@
 #include <errno.h>
-#include "include/encoding.h"
-#include "include/rados.h"
 #include "include/rados/librados.h"
-#include "include/types.h"
 #include "gtest/gtest.h"
 #include "test/librados/test.h"
-#include "cls/lua/cls_lua.h"
 #include "liblua/lua.hpp"
+#include "cls/lua/cls_lua_client.hpp"
 
 /*
  * Auto-generated during build process. It includes the Lua unit test script
@@ -84,21 +81,12 @@ class ClsLua : public ::testing::Test {
     int __clslua_exec(const string& oid, const string& script,
         librados::bufferlist *input = NULL,  const string& funcname = "")
     {
-      struct clslua_cmd cmd;
-      cmd.script = script;
-      cmd.funcname = funcname;
-      if (input)
-        cmd.input = *input;
-
       bufferlist inbl;
-      ::encode(cmd, inbl);
+      if (input)
+        inbl = *input;
 
-      bufferlist outbl;
-      int ret = ioctx.exec(oid, "lua", "eval", inbl, outbl);
-
-      ::decode(reply, outbl);
-
-      return ret;
+      return cls_lua_client::exec(ioctx, oid, script, funcname, inbl,
+          reply_output, &reply_log);
     }
 
     int clslua_exec(const string& script, librados::bufferlist *input = NULL,
@@ -113,7 +101,8 @@ class ClsLua : public ::testing::Test {
     static string test_script;
 
     string oid;
-    struct clslua_reply reply;
+    vector<string> reply_log;
+    bufferlist reply_output;
 
     lua_State *L;
 };
@@ -224,7 +213,7 @@ TEST_F(ClsLua, Stat) {
   /* unpack msgpack msg with Lua msgpack library */
   lua_getglobal(L, "cmsgpack");
   lua_getfield(L, -1, "unpack");
-  lua_pushlstring(L, reply.output.c_str(), reply.output.length());
+  lua_pushlstring(L, reply_output.c_str(), reply_output.length());
   ASSERT_EQ(0, lua_pcall(L, 1, 1, 0));
   /* array on top of stack now */
 
@@ -307,7 +296,7 @@ TEST_F(ClsLua, MapGetVal) {
 
   /* check return */
   string ret_val;
-  ret_val.assign(reply.output.c_str(), reply.output.length());
+  ret_val.assign(reply_output.c_str(), reply_output.length());
   ASSERT_EQ(ret_val, msg);
 
   /* error case */
@@ -326,7 +315,7 @@ TEST_F(ClsLua, Read) {
 
   /* check return */
   string ret_val;
-  ret_val.assign(reply.output.c_str(), reply.output.length());
+  ret_val.assign(reply_output.c_str(), reply_output.length());
   ASSERT_EQ(ret_val, msg);
 }
 
@@ -356,7 +345,7 @@ TEST_F(ClsLua, BufferlistEquality) {
 
 TEST_F(ClsLua, RunError) {
   ASSERT_EQ(-EIO, clslua_exec(test_script, NULL, "runerr_c"));
-  ASSERT_GT((int)reply.log.size(), 0);
+  ASSERT_GT((int)reply_log.size(), 0);
 }
 
 TEST_F(ClsLua, HandleNotFunc) {
@@ -402,8 +391,8 @@ TEST_F(ClsLua, Register) {
 TEST_F(ClsLua, ClsLog) {
   string script = "cls.log('la tee da'); cls.log('coffee');";
   ASSERT_EQ(0, clslua_exec(script));
-  ASSERT_EQ(reply.log[0], "la tee da");
-  ASSERT_EQ(reply.log[1], "coffee");
+  ASSERT_EQ(reply_log[0], "la tee da");
+  ASSERT_EQ(reply_log[1], "coffee");
 }
 
 TEST_F(ClsLua, BufferlistCompare) {
@@ -422,7 +411,7 @@ TEST_F(ClsLua, GetXattr) {
   bl.append("blahblahblahblahblah");
   ASSERT_EQ(0, ioctx.setxattr(oid, "fooz", bl));
   ASSERT_EQ(0, clslua_exec(test_script, NULL, "getxattr"));
-  ASSERT_TRUE(reply.output == bl);
+  ASSERT_TRUE(reply_output == bl);
 }
 
 TEST_F(ClsLua, SetXattr) {

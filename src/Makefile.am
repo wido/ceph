@@ -902,7 +902,7 @@ ceph_test_cls_lua_SOURCES = \
 	test/cls_lua/test_cls_lua.cc \
 	test/librados/test.cc \
 	$(LUA_TEST_H)
-ceph_test_cls_lua_LDADD = librados.la liblua/liblua.la ${UNITTEST_STATIC_LDADD}
+ceph_test_cls_lua_LDADD = libcls_lua_client.la librados.la liblua/liblua.la ${UNITTEST_STATIC_LDADD}
 ceph_test_cls_lua_CXXFLAGS = ${AM_CXXFLAGS} ${UNITTEST_CXXFLAGS}
 bin_DEBUGPROGRAMS += ceph_test_cls_lua
 
