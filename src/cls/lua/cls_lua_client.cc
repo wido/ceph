@@ -29,7 +29,15 @@ namespace cls_lua_client {
     cmd.input = input;
     ::encode(cmd, inbl);
 
+    /*
+     * TODO: we need to encapsulate the return value as well. for example,
+     * -ENOTSUPP is returned if the class is not found, but we also return
+     * -ENOTSUPP if a handler isn't found. In the later case we still get a
+     * valid reply, in the former not so much.
+     */
     ret = ioctx.exec(oid, "lua", "eval", inbl, outbl);
+    if (ret < 0)
+      return ret;
 
     try {
       ::decode(reply, outbl);
