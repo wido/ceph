@@ -143,17 +143,10 @@ class ObjectCacher {
     bool is_error() { return state == STATE_ERROR; }
     
     // reference counting
-    int get() {
-      assert(ref >= 0);
-      if (ref == 0) lru_pin();
-      return ++ref;
-    }
-    int put() {
-      assert(ref > 0);
-      if (ref == 1) lru_unpin();
-      --ref;
-      return ref;
-    }
+    int get();
+    int put();
+
+    friend ostream& operator<<(ostream& out, ObjectCacher::BufferHead &bh);
   };
 
   // ******* Object *********
@@ -161,11 +154,11 @@ class ObjectCacher {
   private:
     // ObjectCacher::Object fields
     int ref;
-    ObjectCacher *oc;
     sobject_t oid;
     friend class ObjectSet;
 
   public:
+    ObjectCacher *oc;
     ObjectSet *oset;
     xlist<Object*>::item set_item;
     object_locator_t oloc;
@@ -189,8 +182,7 @@ class ObjectCacher {
 
     Object(ObjectCacher *_oc, sobject_t o, ObjectSet *os, object_locator_t& l) : 
       ref(0),
-      oc(_oc),
-      oid(o), oset(os), set_item(this), oloc(l),
+      oid(o), oc(_oc), oset(os), set_item(this), oloc(l),
       complete(false), exists(true),
       last_write_tid(0), last_commit_tid(0),
       dirty_or_tx(0) {
@@ -280,18 +272,11 @@ class ObjectCacher {
     void discard(loff_t off, loff_t len);
 
     // reference counting
-    int get() {
-      assert(ref >= 0);
-      if (ref == 0) lru_pin();
-      return ++ref;
-    }
-    int put() {
-      assert(ref > 0);
-      if (ref == 1) lru_unpin();
-      --ref;
-      return ref;
-    }
-  };
+    int get();
+    int put();
+
+    friend ostream& operator<<(ostream& out, ObjectCacher::Object &ob);
+   };
   
 
   struct ObjectSet {
@@ -610,7 +595,8 @@ inline ostream& operator<<(ostream& out, ObjectCacher::BufferHead &bh)
       << bh.start() << "~" << bh.length()
       << " " << bh.ob
       << " (" << bh.bl.length() << ")"
-      << " v " << bh.last_write_tid;
+      << " v " << bh.last_write_tid
+      << " ref " << bh.ref;
   if (bh.is_tx()) out << " tx";
   if (bh.is_rx()) out << " rx";
   if (bh.is_dirty()) out << " dirty";
@@ -646,7 +632,7 @@ inline ostream& operator<<(ostream& out, ObjectCacher::ObjectSet &os)
 inline ostream& operator<<(ostream& out, ObjectCacher::Object &ob)
 {
   out << "object["
-      << ob.get_soid() << " oset " << ob.oset << dec
+      << ob.get_soid() << " ref " << ob.ref << " oset " << ob.oset << dec
       << " wr " << ob.last_write_tid << "/" << ob.last_commit_tid;
 
   if (ob.complete)

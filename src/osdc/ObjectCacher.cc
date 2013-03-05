@@ -1949,3 +1949,30 @@ void ObjectCacher::bh_remove(Object *ob, BufferHead *bh)
   bh_stat_sub(bh);
 }
 
+int ObjectCacher::BufferHead::get() {
+  ldout(ob->oc->cct, 30) << "BufferHead::get() " << this << " " << ref << " -> " << ref + 1 << dendl;
+  assert(ref >= 0);
+  if (ref == 0) lru_pin();
+  return ++ref;
+}
+int ObjectCacher::BufferHead::put() {
+  ldout(ob->oc->cct, 30) << "Object::put() " << this << " " << ref << " -> " << ref - 1 << dendl;
+  assert(ref > 0);
+  if (ref == 1) lru_unpin();
+  --ref;
+  return ref;
+}
+
+int ObjectCacher::Object::get() {
+  ldout(oc->cct, 30) << "Object::get() " << this << " " << ref << " -> " << ref + 1 << dendl;
+  assert(ref >= 0);
+  if (ref == 0) lru_pin();
+  return ++ref;
+}
+int ObjectCacher::Object::put() {
+  ldout(oc->cct, 30) << "Object::put() " << this << " " << ref << " -> " << ref - 1 << dendl;
+  assert(ref > 0);
+  if (ref == 1) lru_unpin();
+  --ref;
+  return ref;
+}
