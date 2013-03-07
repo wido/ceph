@@ -6423,6 +6423,7 @@ void MDCache::trim_client_leases()
 
 void MDCache::check_memory_usage()
 {
+  return;
   static MemoryModel mm(g_ceph_context);
   static MemoryModel::snap last;
   mm.sample(&last);
