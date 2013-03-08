@@ -578,8 +578,11 @@ private:
      * Cancel the currently set timeout, if any.
      */
     void cancel_timeout() {
-      if (timeout)
+      generic_dout(0) << __func__ << dendl;
+      if (timeout) {
+        generic_dout(0) << " timeout cancelled" << dendl;
 	mon->timer.cancel_event(timeout);
+      }
       timeout = NULL;
     }
     /**
