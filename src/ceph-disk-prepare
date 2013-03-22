@@ -493,6 +493,14 @@ def prepare_journal_dev(
             )
         subprocess.check_call(
             args=[
+                # wait for udev events from new partion to be handled
+                'udevadm',
+                'settle',
+                '--timeout=10',
+                ],
+            )
+        subprocess.check_call(
+            args=[
                 # also make sure the kernel refreshes the new table
                 'partprobe',
                 journal,
@@ -672,6 +680,14 @@ def prepare_dev(
                 )
             subprocess.check_call(
                 args=[
+                    # wait for udev events from new partion to be handled
+                    'udevadm',
+                    'settle',
+                    '--timeout=10',
+                    ],
+                )
+            subprocess.check_call(
+                args=[
                     # also make sure the kernel refreshes the new table
                     'partprobe',
                     data,
@@ -739,6 +755,14 @@ def prepare_dev(
                     '--typecode=1:%s' % ptype_osd,
                     '--',
                     data,
+                    ],
+                )
+            subprocess.check_call(
+                args=[
+                    # wait for udev events from new partion to be handled
+                    'udevadm',
+                    'settle',
+                    '--timeout=10',
                     ],
                 )
             subprocess.check_call(
