@@ -119,6 +119,7 @@ that use Ceph.
 Summary:	Rados REST gateway
 Group:		Development/Libraries
 Requires:	librados2 = %{version}-%{release}
+Requires:	ceph = %{version}-%{release}
 %if 0%{defined suse_version}
 BuildRequires:	libexpat-devel
 BuildRequires:	FastCGI-devel
