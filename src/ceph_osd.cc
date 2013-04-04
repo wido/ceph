@@ -337,8 +337,10 @@ int main(int argc, const char **argv)
 		    "(no journal)" : g_conf->osd_journal)
        << std::endl;
 
-  Throttle client_throttler(g_ceph_context, "osd_client_bytes",
-			    g_conf->osd_client_message_size_cap);
+  Throttle client_byte_throttler(g_ceph_context, "osd_client_bytes",
+    g_conf->osd_client_message_size_cap);
+  Throttle client_msg_throttler(g_ceph_context, "osd_client_bytes",
+    g_conf->osd_client_message_cap);
 
   uint64_t supported =
     CEPH_FEATURE_UID | 
@@ -347,7 +349,11 @@ int main(int argc, const char **argv)
     CEPH_FEATURE_MSG_AUTH;
 
   client_messenger->set_default_policy(Messenger::Policy::stateless_server(supported, 0));
-  client_messenger->set_policy_throttler(entity_name_t::TYPE_CLIENT, &client_throttler, NULL);  // default, actually
+  client_messenger->set_policy_throttlers(
+    entity_name_t::TYPE_CLIENT,
+    &client_byte_throttler,
+    &client_msg_throttler);
+
   client_messenger->set_policy(entity_name_t::TYPE_MON,
                                Messenger::Policy::lossy_client(supported,
 							       CEPH_FEATURE_UID |
