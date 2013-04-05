@@ -5045,6 +5045,36 @@ void MDCache::rejoin_import_cap(CInode *in, client_t client, ceph_mds_cap_reconn
     do_cap_import(session, in, cap);
 }
 
+void MDCache::export_remaining_imported_caps()
+{
+
+  dout(10) << "export_remaining_imported_caps" << dendl;
+  map<inodeno_t,map<client_t, map<int,ceph_mds_cap_reconnect> > >::iterator p = cap_imports.begin();
+  while (p != cap_imports.end()) {
+    CInode *in = get_inode(p->first);
+    if (!in) {
+      dout(10) << "process_imported_caps still missing " << p->first
+	       << ", will try again after replayed client requests"
+	       << dendl;
+      ++p;
+      continue;
+    }
+    for (map<client_t, map<int,ceph_mds_cap_reconnect> >::iterator q = p->second.begin();
+	 q != p->second.end();
+	 ++q) {
+      Session *session = mds->sessionmap.get_session(entity_name_t::CLIENT(p->first.v));
+      if (session) {
+	// mark client caps stale.
+	MClientCaps *stale = new MClientCaps(CEPH_CAP_OP_EXPORT, q->first, 0, 0, 0);
+	//stale->head.migrate_seq = 0; // FIXME ******
+	mds->send_message_client_counted(stale, q->first);
+      }
+    }
+  }
+
+  cap_imports.clear();
+}
+
 void MDCache::try_reconnect_cap(CInode *in, Session *session)
 {
   client_t client = session->info.get_client();
