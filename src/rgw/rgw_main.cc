@@ -946,7 +946,7 @@ public:
     conf->get_val("port", "80", &port_str);
     conf_map.erase("port");
     conf_map["listening_ports"] = port_str;
-    set_conf_default(conf_map, "enable_keep_alive", "yes");
+    set_conf_default(conf_map, "enable_keep_alive", "no");
     set_conf_default(conf_map, "num_threads", thread_pool_buf);
     set_conf_default(conf_map, "decode_url", "no");
 
