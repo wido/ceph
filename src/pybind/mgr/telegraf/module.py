@@ -53,6 +53,10 @@ class Module(MgrModule):
     def config_keys(self):
         return dict((o['name'], o.get('default', None)) for o in self.OPTIONS)
 
+    @staticmethod
+    def now():
+        return int(round(time.time() * 1000000000))
+
     def __init__(self, *args, **kwargs):
         super(Module, self).__init__(*args, **kwargs)
         self.event = Event()
@@ -222,9 +226,6 @@ class Module(MgrModule):
         self.config['interval'] = \
             int(self.get_config("interval",
                                 default=self.config_keys['interval']))
-
-    def now(self):
-        return int(round(time.time() * 1000000000))
 
     def gather_measurements(self):
         return itertools.chain(
